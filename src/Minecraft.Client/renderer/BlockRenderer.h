@@ -13,6 +13,7 @@ public:
     void setLightOverride(int);
     bool tesselateInWorld(const BlockState*, const BlockPos&, const BlockState*,
                           std::shared_ptr<BlockEntity>);
+    bool tesselateBlockInWorld(BlockState const*, BlockPos const&, int);
     void tesselateInWorldFixedTexture(const BlockState*, const BlockPos&, TextureAtlasSprite*);
     void clearLightOverride();
     void setShape(const AABB*);
@@ -36,7 +37,7 @@ public:
     void tesselateCrossTexture(BlockState const*, float, float, float, float);
 
     char gap0[8];
-    LevelSource* mSource;
+    LevelSource* mLevelSource;
     TextureAtlasSprite* mFixedTexture;
     char gap18[4];
     bool mIsFlippedTexture;

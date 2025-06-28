@@ -4,11 +4,39 @@
 #include "Minecraft.Client/renderer/Tesselator.h"
 #include "Minecraft.Client/renderer/texture/TextureAtlasSprite.h"
 #include "Minecraft.World/level/block/Blocks.h"
+#include "Minecraft.World/level/block/RenderShape.h"
 #include "Minecraft.World/level/block/state/AbstractProperty.h"
+#include "Minecraft.World/level/block/state/BlockState.h"
 #include "Minecraft.Core/Direction.h"
 #include <cstdio>
 
 Property* FACING;
+
+// NON_MATCHING: not finished, will finish this one day
+bool BlockRenderer::tesselateInWorld(const BlockState* state, const BlockPos& pos,
+                                     const BlockState* idkWhatStateIsThat,
+                                     std::shared_ptr<BlockEntity> unused) {
+    BufferBuilder* builder = Tesselator::getInstance()->getBuilder();
+    Block* block = state->getBlock();
+    const BlockState* stateAfter = block->fillVirtualBlockStateProperties(state, this->mLevelSource, pos);
+
+    RenderShape shape = stateAfter->getRenderShape();
+    if (shape) {
+    } else {
+        bool oldMipmapState = builder->setMipmapEnable(block->isMipmapEnabled());
+        int faceFlags = block->getFaceFlags(stateAfter, this->mLevelSource, pos, this->mIsCullFaceDown);
+
+        if (faceFlags) {
+            this->setShape(block->getShape(state, this->mLevelSource, pos));
+            bool tesselated = this->tesselateBlockInWorld(state, pos, faceFlags);
+            builder->setMipmapEnable(oldMipmapState);
+            return tesselated;
+        } else {
+            builder->setMipmapEnable(oldMipmapState);
+            return false;
+        }
+    }
+}
 
 // later fill with something actuall but without this it doesn't match as in original it doesn't use state arg
 // and then it removes the state arg from being passed in final binary,

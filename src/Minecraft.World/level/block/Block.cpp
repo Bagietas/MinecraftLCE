@@ -39,7 +39,7 @@ void Block::init(Material* material, const MaterialColor* color) {
 
     bool isEnableLight = material->blocksLight();
 
-    isDisableMipmap = true;
+    mMipmapEnabled = true;
     isSemiTransparent = false;
     field_3C = false;
     mMaterialType = 0;

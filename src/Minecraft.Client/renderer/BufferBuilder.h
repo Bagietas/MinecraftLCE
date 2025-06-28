@@ -44,7 +44,8 @@ public:
     void noColor();
     void offset(float, float, float);
     void addOffset(float, float, float);
-    void setMipmapEnable(bool);
+    // returns old mipmap state
+    bool setMipmapEnable(bool);
     void bucket(int);
     void hasMaxVertices();
     void setVertexFormat(const VertexFormat*);

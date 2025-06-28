@@ -30,7 +30,7 @@ public:
     std::wstring mPath;
     std::wstring string40;
     bool idk;
-    std::unordered_map<std::wstring, TextureAtlasSprite*> mTextureAtlasSprites;
+    std::unordered_map<std::wstring, TextureAtlasSprite*> mIconAtlasSprites;
     BufferedImage* mBufferedImage;
     TextureAtlasSprite* mMissingAtlasSprite;
     Texture* mStitchedTexture;

@@ -207,6 +207,7 @@ public:
 
     Material* getMaterial();
     int getId();
+    int getFaceFlags(BlockState const*, LevelSource*, BlockPos const&, bool);
 
     static Block* byId(int id);
     static void popResource(Level*, const BlockPos&, not_null_ptr<ItemInstance>);
@@ -216,6 +217,8 @@ public:
     bool isBlockEntity() const {
         return mIsSilkTouchable;
     }  // I think we have this one wrong... also guessed name
+
+    bool isMipmapEnabled() { return this->mMipmapEnabled; }
 
     class ThreadStorage {};
 
@@ -228,7 +231,7 @@ public:
     bool isBlocksLight;
     int mLightEmission;
     bool field_3C;
-    bool isDisableMipmap;
+    bool mMipmapEnabled;
     bool field_3E;
     bool isSemiTransparent;
     float mDestroyTime;
