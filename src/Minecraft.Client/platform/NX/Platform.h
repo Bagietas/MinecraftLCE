@@ -19,9 +19,9 @@ void XPhysicalFree(void*);
 
 void MemSect(int);
 
-void PIXBeginNamedEvent(float, char const*, ...);
+void PIXBeginNamedEvent(float, const char*, ...);
 void PIXEndNamedEvent();
-void PIXSetMarkerDeprecated(float, char const*, ...);
+void PIXSetMarkerDeprecated(float, const char*, ...);
 
 // this should be in System.h shouldn't it????
 // or should stuff from System.h be moved here
@@ -39,6 +39,9 @@ int XMemCreateDecompressionContext(_XMEMCODEC_TYPE type, const void* param_2, un
                                    void** param_4);
 void XMemDestroyCompressionContext(void* ctxt);
 void XMemDestroyDecompressionContext(void* ctxt);
+
+// the last argument is 32 bit on Wii U Edition, but 64 bit on Switch, so I bet it's a size_t
+void XMemCpy(void* buf, const void* data, size_t size);
 
 unsigned int TlsAlloc();
 int TlsFree(unsigned int unk);

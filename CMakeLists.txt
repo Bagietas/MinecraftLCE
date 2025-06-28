@@ -66,3 +66,16 @@ add_definitions(-D SAFETY_CHECKS)
 add_subdirectory(lib/zlib)
 target_include_directories(mcswitch PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/lib/zlib) # for zconf.h
 target_link_libraries(mcswitch PRIVATE zlibstatic)
+
+add_subdirectory(lib/libpng)
+target_compile_options(libpng PRIVATE
+  -fno-inline
+  -fno-inline-functions
+  -fno-builtin
+)
+target_link_options(mcswitch PRIVATE
+    "SHELL:-Wl,--whole-archive"
+    "$<TARGET_FILE:libpng>"
+    "SHELL:-Wl,--no-whole-archive"
+)
+target_link_libraries(mcswitch PRIVATE libpng)
