@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../types.h"
 #include "nn/os/os_MutexTypes.h"
-#include "types.h"
 
 class Level;
 class Minecraft;
@@ -19,6 +19,12 @@ public:
     void setGlobalChunkFlag(int, int, int, Level*, unsigned char, unsigned char);
     void setGlobalChunkFlags(int, int, int, Level*, unsigned char);
     void clearGlobalChunkFlag(int, int, int, Level*, unsigned char, unsigned char);
+
+    virtual ~LevelRenderer();
+    virtual void func_1();
+    virtual void func_2();
+    virtual void func_3();
+    virtual void allChanged();
 
     void* filler[32];
     int _100;
