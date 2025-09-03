@@ -1,6 +1,7 @@
 #pragma once
 
 #include "net/minecraft/core/StringRepresentable.h"
+#include "net/minecraft/world/level/block/state/properties/AbstractProperty.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -23,6 +24,12 @@ public:
         static Axis* Z;
 
         bool isHorizontal();
+        int getId();
+
+        static Axis* VALUES[3];
+
+        static inline Predicates<Axis*>::ConstantPredicate* PREDICATE
+            = new Predicates<Axis*>::ConstantPredicate(true);
     };
 
     static const Direction* DOWN;

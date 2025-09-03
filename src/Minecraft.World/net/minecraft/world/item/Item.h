@@ -5,6 +5,7 @@
 #include "net/minecraft/world/entity/EquipmentSlot.h"
 #include "net/minecraft/world/entity/ai/attributes/AttributeModifier.h"
 #include "net/minecraft/world/item/InteractionResultHolder.h"
+#include "net/minecraft/world/item/ItemTooltipDataHolder.h"
 #include "types.h"
 #include <memory>
 #include <string>
@@ -18,11 +19,6 @@ class Level;
 class Player;
 class BlockState;
 class CompoundTag;
-class ItemToolTipDataHolder {
-public:
-    char gap0[24];
-    int idk;
-};
 class Entity;
 class IconRegister;
 class BlockPos;
@@ -31,7 +27,7 @@ class TextureAtlasSprite;
 
 class ItemPropertyFunction {
 public:
-    virtual void call(not_null_ptr<ItemInstance>, Level*, std::shared_ptr<LivingEntity>);
+    virtual void call(not_null_ptr<ItemInstance>, Level*, std::shared_ptr<LivingEntity>) = 0;
 };
 
 // Don't know if this exists, it exists on Java
@@ -57,15 +53,10 @@ public:
         }
 
         int getLevel() const { return this->mLevel; }
-
         int getUses() const { return this->mUses; }
-
         float getSpeed() const { return this->mSpeed; }
-
         float getAttackDamageBonus() const { return this->mDamage; }
-
         int getEnchantmentValue() const { return this->mEnchantmentValue; }
-
         Item* getTierItem() const;
 
     private:
@@ -81,10 +72,14 @@ public:
     void addProperty(ResourceLocation, const ItemPropertyFunction*);
     int getId();
     bool canBeDepleted();
+    std::wstring getIconName();
     void setIconName(const std::wstring&);
     void setMaxDamage(int);
     int getMaxDamage();
     void setStackedByData(bool);
+    bool isStackedByData();
+
+    static int VALIDgetId(Item*);
 
     static Item* byId(int id);
     static void registerBlock(Block* block);
@@ -96,7 +91,7 @@ public:
 
     virtual not_null_ptr<ItemInstance> getDefaultInstance();
     virtual bool verifyTagAfterLoad(CompoundTag* tag);
-    virtual int GetUseTooltip(const ItemToolTipDataHolder& toolTipDataHolder);
+    virtual unsigned int GetUseTooltip(const ItemToolTipDataHolder& toolTipDataHolder);
     virtual ~Item() {}
     virtual ActionResultType useOn(std::shared_ptr<Player> user, Level* level, const BlockPos& pos,
                                    InteractionHand::EInteractionHand hand, const Direction* direction,
@@ -120,10 +115,10 @@ public:
                                std::shared_ptr<LivingEntity> ent, InteractionHand::EInteractionHand);
     virtual bool isHandEquipped();
     virtual bool isMirroredArt();
-    virtual int getDescriptionId(int auxValue);
-    virtual int getDescriptionId(not_null_ptr<ItemInstance> itemInstance);
-    virtual int getUseDescriptionId();
-    virtual int getUseDescriptionId(not_null_ptr<ItemInstance> itemInstance);
+    virtual unsigned int getDescriptionId(int auxValue);
+    virtual unsigned int getDescriptionId(not_null_ptr<ItemInstance> itemInstance);
+    virtual unsigned int getUseDescriptionId();
+    virtual unsigned int getUseDescriptionId(not_null_ptr<ItemInstance> itemInstance);
     virtual bool shouldOverrideMultiplayerNBT();
     virtual int getColor(not_null_ptr<ItemInstance> itemInstance,
                          int auxValue);  // not sure about auxValue, pure guess
@@ -148,7 +143,7 @@ public:
     getDefaultAttributeModifiers(const EquipmentSlot* eqpSlot);
     virtual void registerIcons(IconRegister* iconRegister);
     virtual bool hasMultipleSpriteLayers();
-    virtual TextureAtlasSprite* getLayerIcon(int, int, not_null_ptr<ItemInstance> itemInstance);
+    virtual TextureAtlasSprite* getLayerIcon(int, int);
     virtual int getIconType();
     virtual TextureAtlasSprite* getIcon(int auxValue);
     virtual TextureAtlasSprite* getIcon(not_null_ptr<ItemInstance> itemInstance);

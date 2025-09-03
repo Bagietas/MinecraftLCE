@@ -99,6 +99,8 @@ public:
     void setScreen(Screen* screen);
     void SetGhostController(GhostController*);
 
+    void SetupMiniGameInstance(MiniGameDef& def, int i);
+
     DataFixerUpper* mFixerUpper;
     MultiPlayerGameMode* mMultiPlayerGameMode;
     bool mIsFullscreen;
@@ -113,7 +115,7 @@ public:
     void* qword_40;
     Level* mLevel;
     LevelRenderer* mLevelRenderer;
-    std::shared_ptr<LocalPlayer> mLocalPlayer;
+    std::shared_ptr<MultiplayerLocalPlayer> mLocalPlayer;
     arrayWithLength<void*> array_68;  // unknown array type
     std::shared_ptr<MultiplayerLocalPlayer> mLocalPlayers[4];
     MultiPlayerGameMode* mGameModes[4];
@@ -172,7 +174,7 @@ public:
     void* qword_328;
     std::vector<void*> qword_330;
     std::vector<void*> qword_348;
-    void* mLobbyGameMode;
+    MiniGameDef* mLobbyGameMode;
     ClientMasterGameMode* mClientMasterGameMode;
     void* qword_370;
     GhostController* mGhostController;

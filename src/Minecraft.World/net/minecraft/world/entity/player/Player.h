@@ -32,6 +32,7 @@ class GameType;
 class Inventory;
 class InventoryMenu;
 class PlayerEnderChestContainer;
+class GameMode;
 
 class Player : public LivingEntity {
 public:
@@ -79,16 +80,16 @@ public:
     std::wstring getDisplayName() override;
     void shouldShowName() override;
     void onSyncedDataUpdated(const EntityDataAccessor_Base*) override;
-    void getEyeHeight() override;
+    float getEyeHeight() override;
     void setSlot(int, const not_null_ptr<ItemInstance>&) override;
     SoundSource::ESoundSource getSoundSource() override;
     void canCreateParticles() override;
-    bool PositionLocked_4() override;
-    void SetPositionLocked_4(bool) override;
-    void TakeGlideCollisionDamage_4() override;
-    void SetGlideCollisionDamage_4(bool) override;
-    double GetLiftForceModifier_4() override;
-    void SetLiftForceModifier_4(double) override;
+    bool PositionLocked() override;
+    void SetPositionLocked(bool) override;
+    void TakeGlideCollisionDamage() override;
+    void SetGlideCollisionDamage(bool) override;
+    double GetLiftForceModifier() override;
+    void SetLiftForceModifier(double) override;
     void registerAttributes() override;
     void onChangedBlock(const BlockPos&) override;
     void getExperienceReward(std::shared_ptr<Player>) override;
@@ -178,7 +179,7 @@ public:
     virtual void StopSpectatingPlayer();
     virtual bool IsSpectatingOtherPlayer();
     virtual void pure_virtual_12() = 0;
-    virtual void GetGameMode();
+    virtual GameMode* GetGameMode();
     virtual void AutoEquip(not_null_ptr<ItemInstance>, bool&);
     virtual void OnEquipArmor(not_null_ptr<ItemInstance>);
     virtual void OnTakeFromAnvil(not_null_ptr<ItemInstance>);
@@ -193,9 +194,12 @@ public:
     int getPlayerGamePrivilege(EPlayerGamePrivileges);
     bool CheckPowerup(PowerupItems::eGlide_Timed_Powerup_ID);
     std::shared_ptr<ItemEntity> drop(not_null_ptr<ItemInstance>, bool);
+    bool canDestroy(const BlockState*);
+    float getDestroySpeed(const BlockState*);
+    const StatsUID getSUID();
+    PlayerUID getPlayerUID() { return this->playerUID1; }  // guessed name
 
-    // dunno the type
-    static std::vector<void*> sSkins;
+    static std::vector<unsigned int> sSkins;
 
     std::shared_ptr<Inventory> mInventory = nullptr;
     PlayerEnderChestContainer* mEnderChestInventory = nullptr;
@@ -203,7 +207,6 @@ public:
     InventoryMenu* mInventoryMenu;
     void* mContainerMenu;
     FoodData mFoodData;
-    int align;
     int mJumpTriggerTime;
     float mOBob;
     float mBob;

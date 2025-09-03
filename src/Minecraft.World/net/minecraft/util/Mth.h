@@ -1,10 +1,14 @@
 #pragma once
 
+#include <string>
+
 class Random;
 
 // Meth
 class Mth {
 public:
+    static constexpr float PI = 3.1415926;
+
     static float* SIN;
 
     static float sin(float);
@@ -31,4 +35,6 @@ public:
     static int nextInt(Random* random, int i, int j);
     static float nextFloat(Random* random, float i, float j);
     static double nextDouble(Random* random, double i, double j);
+    static std::wstring createInsecureUUID(Random* random);
+    static int64_t getSeed(int, int, int);
 };

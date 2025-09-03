@@ -7,6 +7,7 @@
 class Direction;
 class Entity;
 class Vec3;
+class BlockPosIterator;
 
 class BlockPos : public Vec3i {
 public:
@@ -17,6 +18,8 @@ public:
     BlockPos(const std::shared_ptr<Entity>&);
     BlockPos(Vec3*);
     BlockPos(const Vec3i&);
+
+    static BlockPosIterator* between(const BlockPos&, const BlockPos&);
 
     bool equals(const BlockPos& pos) const;
     bool equals(const BlockPos* pos) const;
@@ -41,23 +44,6 @@ public:
 
     long long compressBlockPos() const;
     void decompressBlockPos(long long);
-};
-
-class MutableBlockPos : public BlockPos {
-public:
-    MutableBlockPos(int, int, int);
-    MutableBlockPos(const BlockPos&);
-
-    void setX(int);
-    void setY(int);
-    void setZ(int);
-    MutableBlockPos* set(int x, int y, int z) {
-        this->x = x;
-        this->y = y;
-        this->z = z;
-        return this;
-    }
-    void set(const BlockPos&);
 };
 
 ASSERT_SIZEOF(BlockPos, 0xC)

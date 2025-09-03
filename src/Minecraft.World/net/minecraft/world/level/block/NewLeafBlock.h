@@ -1,8 +1,10 @@
 #pragma once
 
-#include "net/minecraft/world/level/block/Block.h"
+#include "net/minecraft/world/level/block/LeafBlock.h"
 
-class NewLeafBlock : public Block {
+class NewLeafBlock : public LeafBlock {
 public:
+    NewLeafBlock();
+
     static void blockStaticCtor();
 };

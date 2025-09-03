@@ -4,65 +4,106 @@
 #include "net/minecraft/client/CGameNetworkManager.h"
 #include "net/minecraft/client/CMinecraftApp.h"
 #include "net/minecraft/client/Minecraft.h"
+#include "net/minecraft/client/sounds/SoundEngine.h"
 #include "net/minecraft/core/BlockPos.h"
+#include "net/minecraft/core/MutableBlockPos.h"
+#include "net/minecraft/network/PacketType.h"
+#include "net/minecraft/network/protocol/game/ClientboundSoundPacket.h"
+#include "net/minecraft/server/MinecraftServer.h"
+#include "net/minecraft/server/players/PlayerList.h"
+#include "net/minecraft/sounds/SoundEvent.h"
 #include "net/minecraft/util/Mth.h"
 #include "net/minecraft/world/eINSTANCEOF.h"
 #include "net/minecraft/world/effect/MobEffectInstance.h"
 #include "net/minecraft/world/effect/MobEffects.h"
 #include "net/minecraft/world/entity/Entity.h"
-#include "net/minecraft/world/entity/ai/attributes/Attribute.h"
 #include "net/minecraft/world/entity/player/Player.h"
+#include "net/minecraft/world/entity/player/ServerPlayer.h"
+#include "net/minecraft/world/item/ItemInstance.h"
 #include "net/minecraft/world/item/enchantment/EnchantmentHelper.h"
 #include "net/minecraft/world/level/block/Blocks.h"
 #include "net/minecraft/world/level/block/state/BlockState.h"
 #include "net/minecraft/world/level/chunk/LevelChunk.h"
+#include "net/minecraft/world/level/gamemode/GameMode.h"
 #include "net/minecraft/world/level/gamemode/minigames/MiniGameDef.h"
+#include "net/minecraft/world/level/gamemode/minigames/glide/ThermalAreaRuleDefinition.h"
+#include "types.h"
 #include <cmath>
 #include <memory>
 
 eINSTANCEOF LivingEntity::GetType() {
     return eLivingEntity;
 }
+void LivingEntity::setBoundingBox(AABB* box) {
+    const int newMinX = Mth::floor(box->min.x);
+    const int newMaxX = Mth::floor(box->max.x);
+    const int newMinY = Mth::floor(box->min.y);
+    const int newMaxY = Mth::floor(box->max.y);
+    const int newMinZ = Mth::floor(box->min.z);
+    const int newMaxZ = Mth::floor(box->max.z);
+
+    const int oldMinX = this->mMinX;
+    const int oldMaxX = this->mMaxX;
+    const int oldMinY = this->mMinY;
+    const int oldMaxY = this->mMaxY;
+    const int oldMinZ = this->mMinZ;
+    const int oldMaxZ = this->mMaxZ;
+
+    this->mMinX = newMinX;
+    this->mMaxX = newMaxX;
+    this->mMinY = newMinY;
+    this->mMaxY = newMaxY;
+    this->mMinZ = newMinZ;
+    this->mMaxZ = newMaxZ;
+
+    if (newMinX != oldMinX || newMaxX != oldMaxX || newMinY != oldMinY || newMaxY != oldMaxY
+        || newMinZ != oldMinZ || newMaxZ != oldMaxZ) {
+        ++this->mBoundingBoxUpdateCount;
+    }
+    this->Entity::setBoundingBox(box);
+}
 
 void LivingEntity::dropEquipment(bool, int) {}
 void LivingEntity::dropDeathLoot(bool, int) {}
 void LivingEntity::hurtArmor(float) {}
 void LivingEntity::hurtCurrentlyUsedShield(float) {}
+
 void LivingEntity::travel(float x, float y, float z) {
     Player* player = this->isType(ePlayer) ? (Player*)this : nullptr;
-    if (this->PositionLocked_4()) {
-        this->mDeltaMovement.x = 0;
-        this->mDeltaMovement.z = 0;
+    if (this->PositionLocked()) {
+        this->mDeltaMovementX = 0;
+        this->mDeltaMovementZ = 0;
         if (Minecraft::InMiniGame(EMiniGameId::TUMBLE, false)
             || Minecraft::InMiniGame(EMiniGameId::GLIDE, false))
-            this->mDeltaMovement.y = 0;
+            this->mDeltaMovementY = 0;
     }
 
     if (this->isEffectiveAi() || this->isControlledByLocalInstance()) {
         if (!this->isInWater() || (player && player->mAbilities.mIsFlying)) {
             if (!this->isInLava() || (player && player->mAbilities.mIsFlying)) {
-                if (this->isFallFlying() && !this->PositionLocked_4()
+                if (this->isFallFlying() && !this->PositionLocked()
                     && !CConsoleMinecraftApp::sInstance.IsAppPaused()) {
                     this->CheckThermalAreas();
 
                     double idk;
-                    this->fallFlyingTravel(this->mDeltaMovement.x, this->mDeltaMovement.y,
-                                           this->mDeltaMovement.z, this->getLookAngle(), this->mXRot,
-                                           this->mFallDistance, idk, this->GetLiftForceModifier_4());
+                    this->fallFlyingTravel(this->mDeltaMovementX, this->mDeltaMovementY,
+                                           this->mDeltaMovementZ, this->getLookAngle(), this->mXRot,
+                                           this->mFallDistance, idk, this->GetLiftForceModifier());
 
                     if (player && CConsoleMinecraftApp::sInstance.GetFirstMiniGameType() == GLIDE
                         && player->CheckPowerup((PowerupItems::eGlide_Timed_Powerup_ID)0)
-                        && this->mDeltaMovement.y < 0.0) {
-                        this->move(SELF, this->mDeltaMovement.x, this->mDeltaMovement.y * 0.2,
-                                   this->mDeltaMovement.z, false);
-                    } else if (this->double398 + this->double3A0 == 0.0) {
-                        this->move(SELF, this->mDeltaMovement.x, this->mDeltaMovement.y,
-                                   this->mDeltaMovement.z, false);
+                        && this->mDeltaMovementY < 0.0) {
+                        this->move(SELF, this->mDeltaMovementX, this->mDeltaMovementY * 0.2,
+                                   this->mDeltaMovementZ, false);
+                    } else if (this->mAdditionalGlideVelocity + this->mAppliedLiftVelocity == 0.0) {
+                        this->move(SELF, this->mDeltaMovementX, this->mDeltaMovementY, this->mDeltaMovementZ,
+                                   false);
                     } else {
-                        this->move(SELF, this->mDeltaMovement.x, this->double398 + this->double3A0,
-                                   this->mDeltaMovement.z, false);
-                        if (this->double3A0 != 0.0)
-                            this->mDeltaMovement.y = 0.0f;
+                        this->move(SELF, this->mDeltaMovementX,
+                                   this->mAdditionalGlideVelocity + this->mAppliedLiftVelocity,
+                                   this->mDeltaMovementZ, false);
+                        if (this->mAppliedLiftVelocity != 0.0)
+                            this->mDeltaMovementY = 0.0f;
                     }
                 } else {
                     MutableBlockPos blockPos = MutableBlockPos(
@@ -112,37 +153,37 @@ void LivingEntity::travel(float x, float y, float z) {
                         PIXEndNamedEvent();
                     }
                     if (this->onLadder()) {
-                        this->mDeltaMovement.x = Mth::clamp(this->mDeltaMovement.x, -0.15, 0.15);
-                        this->mDeltaMovement.z = Mth::clamp(this->mDeltaMovement.z, -0.15, 0.15);
+                        this->mDeltaMovementX = Mth::clamp(this->mDeltaMovementX, -0.15, 0.15);
+                        this->mDeltaMovementZ = Mth::clamp(this->mDeltaMovementZ, -0.15, 0.15);
                         this->mFallDistance = 0.0F;
 
-                        if (this->mDeltaMovement.y < -0.15)
-                            this->mDeltaMovement.y = -0.15;
+                        if (this->mDeltaMovementY < -0.15)
+                            this->mDeltaMovementY = -0.15;
 
-                        if (this->isSneaking() && this->isType(ePlayer) && this->mDeltaMovement.y < 0.0)
-                            this->mDeltaMovement.y = 0.0;
+                        if (this->isSneaking() && this->isType(ePlayer) && this->mDeltaMovementY < 0.0)
+                            this->mDeltaMovementY = 0.0;
                     }
 
                     PIXBeginNamedEvent(0.0, "move");
-                    this->move(SELF, this->mDeltaMovement.x, this->mDeltaMovement.y, this->mDeltaMovement.z,
+                    this->move(SELF, this->mDeltaMovementX, this->mDeltaMovementY, this->mDeltaMovementZ,
                                false);
                     PIXEndNamedEvent();
 
-                    if (this->mHorizontalCollision && this->onLadder())
-                        this->mDeltaMovement.y = 0.2;
+                    if (this->mHasHorizontalCollision && this->onLadder())
+                        this->mDeltaMovementY = 0.2;
 
                     PIXBeginNamedEvent(0.0, "Update y delta");
                     if (this->hasEffect(MobEffects::LEVITATION)) {
-                        this->mDeltaMovement.y
+                        this->mDeltaMovementY
                             += (0.05 * (this->getEffect(MobEffects::LEVITATION)->getAmplifier() + 1)
-                                - this->mDeltaMovement.y)
+                                - this->mDeltaMovementY)
                                * 0.2;
                     } else {
                         blockPos.set(Mth::floor(this->mX), 0, Mth::floor(this->mZ));
                         bool v67 = this->mLevel->mIsLocal ? CGameNetworkManager::sInstance.IsHost() : true;
-                        if (this->PositionLocked_4()) {
+                        if (this->PositionLocked()) {
                             if (Minecraft::InMiniGame(TUMBLE, false) || Minecraft::InMiniGame(GLIDE, false)) {
-                                this->mDeltaMovement.y = 0;
+                                this->mDeltaMovementY = 0;
                             }
                         }
 
@@ -150,37 +191,36 @@ void LivingEntity::travel(float x, float y, float z) {
                             || (this->mLevel->hasChunkAt(blockPos)
                                 && this->mLevel->getChunkAt(blockPos)->isTerrainPopulated())) {
                             if (!this->isNoGravity()) {
-                                this->mDeltaMovement.y -= 0.8f;
+                                this->mDeltaMovementY -= 0.8f;
                             }
                         }
                     }
 
                     PIXEndNamedEvent();
-                    this->mDeltaMovement.y *= 0.98;
-                    this->mDeltaMovement.x *= finalFriction;
-                    this->mDeltaMovement.z *= finalFriction;
+                    this->mDeltaMovementY *= 0.98;
+                    this->mDeltaMovementX *= finalFriction;
+                    this->mDeltaMovementZ *= finalFriction;
                 }
 
             } else {
                 PIXBeginNamedEvent(0.0, "Travel in lava");
                 double YBefore = this->mY;
                 this->moveRelative(x, y, z, 0.02f);
-                this->move(SELF, this->mDeltaMovement.x, this->mDeltaMovement.y, this->mDeltaMovement.z,
-                           false);
+                this->move(SELF, this->mDeltaMovementX, this->mDeltaMovementY, this->mDeltaMovementZ, false);
 
-                this->mDeltaMovement.x *= 0.5;
-                this->mDeltaMovement.y *= 0.5;
-                this->mDeltaMovement.z *= 0.5;
+                this->mDeltaMovementX *= 0.5;
+                this->mDeltaMovementY *= 0.5;
+                this->mDeltaMovementZ *= 0.5;
 
                 if (!this->isNoGravity()) {
-                    this->mDeltaMovement.y -= 0.02;
+                    this->mDeltaMovementY -= 0.02;
                 }
 
-                if (this->mHorizontalCollision
-                    && this->isFree(this->mDeltaMovement.x,
-                                    YBefore + this->mDeltaMovement.y + 0.600000024 - this->mY,
-                                    this->mDeltaMovement.z)) {
-                    this->mDeltaMovement.y = 0.300000012;
+                if (this->mHasHorizontalCollision
+                    && this->isFree(this->mDeltaMovementX,
+                                    YBefore + this->mDeltaMovementY + 0.600000024 - this->mY,
+                                    this->mDeltaMovementZ)) {
+                    this->mDeltaMovementY = 0.300000012;
                 }
                 PIXEndNamedEvent();
             }
@@ -202,19 +242,19 @@ void LivingEntity::travel(float x, float y, float z) {
             }
 
             this->moveRelative(x, y, z, f2);
-            this->move(SELF, this->mDeltaMovement.x, this->mDeltaMovement.y, this->mDeltaMovement.z, false);
-            this->mDeltaMovement.x *= waterSlow;
-            this->mDeltaMovement.y *= 0.800000012;
-            this->mDeltaMovement.z *= waterSlow;
+            this->move(SELF, this->mDeltaMovementX, this->mDeltaMovementY, this->mDeltaMovementZ, false);
+            this->mDeltaMovementX *= waterSlow;
+            this->mDeltaMovementY *= 0.800000012;
+            this->mDeltaMovementZ *= waterSlow;
 
             if (!this->isNoGravity()) {
-                this->mDeltaMovement.y -= 0.02;
+                this->mDeltaMovementY -= 0.02;
             }
 
-            if (this->mHorizontalCollision
-                && this->isFree(this->mDeltaMovement.x, this->mDeltaMovement.y + 0.600000024 - this->mY + d0,
-                                this->mDeltaMovement.z)) {
-                this->mDeltaMovement.y = 0.300000012;
+            if (this->mHasHorizontalCollision
+                && this->isFree(this->mDeltaMovementX, this->mDeltaMovementY + 0.600000024 - this->mY + d0,
+                                this->mDeltaMovementZ)) {
+                this->mDeltaMovementY = 0.300000012;
             }
             PIXEndNamedEvent();
         }
@@ -236,12 +276,195 @@ float LivingEntity::getAbsorptionAmount() {
     return this->mAbsorptionAmount;
 }
 
-// NON_MATCHING | Score: 805 (lower is better)
-// ???
-// some weird fmaxf issue
 void LivingEntity::setAbsorptionAmount(float amount) {
-    this->mAbsorptionAmount = fmaxf(amount, 0.0);
+    if (amount < 0.0F) {
+        amount = 0.0F;
+    }
+
+    this->mAbsorptionAmount = amount;
 }
+
 void LivingEntity::onEnterCombat() {}
 void LivingEntity::onLeaveCombat() {}
 void LivingEntity::setRecordPlayingNearby(const BlockPos&, bool) {}
+
+not_null_ptr<ItemInstance> LivingEntity::getUseItem() {
+    return this->mUseItem;
+}
+
+// NON_MATCHING: Various issues, https://decomp.me/scratch/bm1rV
+void LivingEntity::CheckThermalAreas() {
+    SetLiftForceModifier(1.0);
+
+    LevelGenerationOptions* levelGenerationOptions
+        = CConsoleMinecraftApp::sInstance.getLevelGenerationOptions();
+    if (!levelGenerationOptions)
+        return;
+
+    LevelRuleset* ruleset = levelGenerationOptions->getRequiredGameRules();
+    int miniGameType = CConsoleMinecraftApp::sInstance.GetFirstMiniGameType();
+
+    if (!ruleset)
+        return;
+
+    if (miniGameType != EMiniGameId::GLIDE)
+        return;
+
+    ThermalAreaRuleDefinition** activeThermal = nullptr;
+    std::vector<ThermalAreaRuleDefinition*> thermalAreas;
+    ruleset->getThermalAreas(&thermalAreas);
+
+    for (auto it = thermalAreas.begin(); it != thermalAreas.end(); ++it) {
+        if ((*it)->isActive() && (*it)->getConditionsMet(shared_from_this())
+            && (*it)->getArea()->intersects(getSweptVolume())) {
+            activeThermal = &*it;
+            break;
+        }
+    }
+
+    bool isInThermal = (activeThermal != nullptr);
+    bool validBoostDirection = false;
+    int boostDirection[2] = {0, 0};
+
+    if (isInThermal) {
+        // byte3F0 = true;
+        if (mHasPendingThermalEntry) {
+            mHasPendingThermalEntry = false;
+            if ((*activeThermal)->getSpeedBoost() == 0.0) {
+                if (mLevel->mIsLocal && isType(eLocalPlayer)) {
+                    Minecraft* minecraft = Minecraft::GetInstance();
+                    minecraft->mSoundEngine->playUI(SoundEvent::ENTER_THERMAL, 1.0f, 1.0f);
+                }
+                if (!mLevel->mIsLocal && isType(eServerPlayer)) {
+                    std::shared_ptr<Packet> packet(
+                        new ClientboundSoundPacket(ClientboundSoundPacket::ESoundInstances::_1,
+                                                   SoundEvent::ENTER_THERMAL, 1.0f, 1.0f, false, getId()));
+                    MinecraftServer::getInstance()->tryGetPlayers()->broadcast(
+                        std::static_pointer_cast<ServerPlayer>(shared_from_this()), mX, mY, mZ, 30.0,
+                        mDimensionId, packet);
+                }
+            }
+
+            if ((*activeThermal)->getSpeedBoost() != 0.0) {
+                if (mLevel->mIsLocal && isType(eLocalPlayer)) {
+                    Minecraft* minecraft = Minecraft::GetInstance();
+                    minecraft->mSoundEngine->playUI(SoundEvent::ENTER_BOOST, 1.0f, 1.0f);
+                }
+                if (!mLevel->mIsLocal && isType(eServerPlayer)) {
+                    std::shared_ptr<Packet> packet(
+                        new ClientboundSoundPacket(ClientboundSoundPacket::ESoundInstances::_1,
+                                                   SoundEvent::ENTER_BOOST, 1.0f, 1.0f, false, getId()));
+                    MinecraftServer::getInstance()->tryGetPlayers()->broadcast(
+                        std::static_pointer_cast<ServerPlayer>(shared_from_this()), mX, mY, mZ, 30.0,
+                        mDimensionId, packet);
+                }
+            }
+        }
+
+        SetLiftForceModifier((*activeThermal)->getLiftForceModifier());
+
+        if (!mIsApplyingStaticLift) {
+            double liftMod = (*activeThermal)->getStaticLift();
+            if (liftMod != 0.0) {
+                mIsApplyingLift = true;
+                mLiftDurationTimer = 0;
+            }
+            mTargetLiftVelocity = (*activeThermal)->getStaticLift();
+        }
+
+        if ((*activeThermal)->getTargetHeight() > 0.0) {
+            mIsApplyingStaticLift = true;
+            mStaticLiftTargetHeight = (*activeThermal)->getTargetHeight();
+        }
+
+        mIsUpdraft = !((*activeThermal)->getStaticLift() < 0.0);
+
+        if ((*activeThermal)->getSpeedBoost() > 0.0) {
+            activateElytraSpeedBoost((*activeThermal)->getSpeedBoost());
+            validBoostDirection = (*activeThermal)->setBoostMods(boostDirection[1], boostDirection[0]);
+        }
+
+        if (mThermalArea != *activeThermal && isType(eServerPlayer)) {
+            std::shared_ptr<ServerPlayer> player = std::static_pointer_cast<ServerPlayer>(shared_from_this());
+            player->GetGameMode()->RecordThermalEntered();
+        }
+
+        mThermalArea = *activeThermal;
+    } else if (mThermalArea) {
+        mHasPendingThermalEntry = true;
+        if (!mLevel->mIsLocal) {
+            mThermalArea->updateUseCount();
+            mThermalArea = nullptr;
+        }
+    }
+
+    if (mIsApplyingStaticLift) {
+        if (mY >= mStaticLiftTargetHeight || mHasVerticalCollision) {
+            mIsApplyingStaticLift = false;
+            mIsApplyingLift = false;
+        } else {
+            mIsApplyingLift = true;
+        }
+    }
+
+    if (mIsApplyingLift) {
+        if (mAppliedLiftVelocity == 0.0 && mDeltaMovementY != 0.0) {
+            mAppliedLiftVelocity = mDeltaMovementY;
+        }
+        if (mIsUpdraft) {
+            if (mAppliedLiftVelocity < mTargetLiftVelocity) {
+                mAppliedLiftVelocity
+                    = mAppliedLiftVelocity
+                      + ((mTargetLiftVelocity - mAppliedLiftVelocity) / mTargetLiftVelocity) * 0.1;
+            }
+        } else {
+            if (mAppliedLiftVelocity > mTargetLiftVelocity) {
+                mAppliedLiftVelocity
+                    = mAppliedLiftVelocity
+                      + ((mTargetLiftVelocity - mAppliedLiftVelocity) / mTargetLiftVelocity) * -0.1;
+            }
+        }
+
+        if (!mIsApplyingStaticLift) {
+            mLiftDurationTimer++;
+            if (mLiftDurationTimer > 20) {
+                mIsApplyingLift = false;
+                mLiftDurationTimer = 0;
+            }
+        }
+    } else if (mIsUpdraft) {
+        mAppliedLiftVelocity = mAppliedLiftVelocity > 0.0 ? mAppliedLiftVelocity - 0.025 : 0.0;
+    } else {
+        mAppliedLiftVelocity = mAppliedLiftVelocity < 0.0 ? mAppliedLiftVelocity + 0.025 : 0.0;
+    }
+
+    if (mIsSpeedBoosting) {
+        double horizSpeed = Mth::sqrt(mDeltaMovementX * mDeltaMovementX + mDeltaMovementZ * mDeltaMovementZ);
+        if (horizSpeed < mTargetBoostSpeed) {
+            if (validBoostDirection) {
+                double deltaX = mDeltaMovementX;
+                double absX = Mth::abs(deltaX);
+                int boostX = boostDirection[1];
+
+                deltaX += absX * 0.1 * boostX;
+                mDeltaMovementX = deltaX;
+
+                double deltaZ = mDeltaMovementZ;
+                double absZ = Mth::abs(deltaZ);
+                int boostZ = boostDirection[0];
+
+                deltaZ += absZ * 0.1 * boostZ;
+                mDeltaMovementZ = deltaZ;
+
+                if (deltaX * boostX < 0.0 || deltaZ * boostZ < 0.0) {
+                    mIsSpeedBoosting = false;
+                }
+            } else {
+                mDeltaMovementX *= 1.1;
+                mDeltaMovementZ *= 1.1;
+            }
+        } else {
+            mIsSpeedBoosting = false;
+        }
+    }
+}

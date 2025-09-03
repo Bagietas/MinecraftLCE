@@ -1,16 +1,21 @@
 #include "net/minecraft/world/enchantment/enchantments/ProtectionEnchantment.h"
 
+#include "net/minecraft/client/ui/StringIDs.h"
 #include "net/minecraft/world/damagesource/DamageSource.h"
 #include "net/minecraft/world/enchantment/categories/ArmorCategory.h"
 #include "net/minecraft/world/enchantment/categories/FeetArmorCategory.h"
 #include "net/minecraft/world/item/enchantment/Enchantment.h"
 #include "net/minecraft/world/item/enchantment/EnchantmentCategory.h"
 
-const ProtectionEnchantment::Type* ALL = new ProtectionEnchantment::Type(0xF84A0F07, 1, 11, 20);
-const ProtectionEnchantment::Type* FIRE = new ProtectionEnchantment::Type(0xE1AA8A26, 10, 8, 12);
-const ProtectionEnchantment::Type* FALL = new ProtectionEnchantment::Type(0xF470F5F1, 5, 6, 10);
-const ProtectionEnchantment::Type* EXPLOSION = new ProtectionEnchantment::Type(0x7FF9AA23, 5, 8, 12);
-const ProtectionEnchantment::Type* PROJECTILE = new ProtectionEnchantment::Type(0xCF623683, 3, 6, 15);
+const ProtectionEnchantment::Type* ALL = new ProtectionEnchantment::Type(StringIDs::Protection, 1, 11, 20);
+const ProtectionEnchantment::Type* FIRE
+    = new ProtectionEnchantment::Type(StringIDs::FireProtection, 10, 8, 12);
+const ProtectionEnchantment::Type* FALL
+    = new ProtectionEnchantment::Type(StringIDs::FeatherFalling, 5, 6, 10);
+const ProtectionEnchantment::Type* EXPLOSION
+    = new ProtectionEnchantment::Type(StringIDs::BlastProtection, 5, 8, 12);
+const ProtectionEnchantment::Type* PROJECTILE
+    = new ProtectionEnchantment::Type(StringIDs::ProjectileProtection, 3, 6, 15);
 
 ProtectionEnchantment::Type::Type(int nameId, int minCost, int levelCost, int idk)
     : mNameId(nameId), mMinCost(minCost), mLevelCost(levelCost), dwordC(idk) {}
@@ -44,10 +49,10 @@ int ProtectionEnchantment::getDamageProtection(int level, const DamageSource* so
         return level * 2;
     } else if (this->mType == FALL && source == DamageSource::BYPASS_ARMOUR) {
         return level * 3;
-    } else if (this->mType == EXPLOSION && source->isExplosion()) {
+    } else if (this->mType == PROJECTILE && source->isProjectile()) {
         return level * 2;
     } else {
-        return this->mType == PROJECTILE && source->isProjectile() ? level * 2 : 0;
+        return this->mType == EXPLOSION && source->isExplosion() ? level * 2 : 0;
     }
 }
 bool ProtectionEnchantment::checkCompatibility(const Enchantment* other) {

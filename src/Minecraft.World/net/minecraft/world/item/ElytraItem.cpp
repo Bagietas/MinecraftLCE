@@ -1,6 +1,7 @@
 #include "net/minecraft/world/item/ElytraItem.h"
 
 #include "net/minecraft/client/renderer/texture/IconRegister.h"
+#include "net/minecraft/client/ui/StringIDs.h"
 #include "net/minecraft/resources/ResourceLocation.h"
 #include "net/minecraft/world/entity/EquipmentSlot.h"
 #include "net/minecraft/world/entity/mob/Mob.h"
@@ -27,11 +28,11 @@ bool ElytraItem::isFlyEnabled(not_null_ptr<ItemInstance> item) {
     return item->getDamageValue() < item->getMaxDamage() - 1;
 }
 
-int ElytraItem::GetUseTooltip(const ItemToolTipDataHolder& data) {
+unsigned int ElytraItem::GetUseTooltip(const ItemToolTipDataHolder& data) {
     if (data.idk == 2) {
         return 0xFFFFFFFF;
     } else {
-        return 0xAFD35F15;
+        return StringIDs::Equip;
     }
     // Wonder if that was one liner or not
 }
@@ -69,7 +70,7 @@ void ElytraItem::registerIcons(IconRegister* iconRegister) {
     this->mBrokenElytraIcon = iconRegister->registerIcon(L"broken_elytra");
 }
 
-TextureAtlasSprite* ElytraItem::getLayerIcon(int usage, int, not_null_ptr<ItemInstance>) {
+TextureAtlasSprite* ElytraItem::getLayerIcon(int usage, int) {
     if (this->getMaxDamage() - 1 > usage)
         return this->mDefaultIcon;
     else

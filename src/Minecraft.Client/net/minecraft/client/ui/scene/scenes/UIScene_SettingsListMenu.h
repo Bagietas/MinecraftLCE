@@ -21,5 +21,4 @@ public:
     wchar_t wchar2E78;
     char gap2E7C[1020];
     wchar_t wchar3278;
-    char maybe[0x3F8];
 };
