@@ -19,6 +19,7 @@ public:
     void addElement(eUIControlType, int);
     void init(int);
     void setCurrentSelection(int, bool, bool);
+    void SetItemLabel(int id, UIString, bool);
 
     std::vector<UIControl_List::GenericPendingUpdate*> mGenericPendingUpdates;
     std::vector<int> mUIControlIDs;

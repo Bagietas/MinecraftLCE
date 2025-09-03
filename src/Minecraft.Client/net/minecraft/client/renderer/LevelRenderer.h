@@ -20,6 +20,12 @@ public:
     void setGlobalChunkFlags(int, int, int, Level*, unsigned char);
     void clearGlobalChunkFlag(int, int, int, Level*, unsigned char, unsigned char);
 
+    virtual ~LevelRenderer();
+    virtual void func_1();
+    virtual void func_2();
+    virtual void func_3();
+    virtual void allChanged();
+
     void* filler[32];
     int _100;
     void* filler2[61];
