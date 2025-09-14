@@ -1,6 +1,8 @@
 #pragma once
 
 #include "net/minecraft/world/level/gamemode/minigames/EMiniGameId.h"
+#include "xml/XmlConstruct.h"
+#include <cstddef>
 
 class MiniGameDef {
 public:
@@ -32,4 +34,10 @@ public:
     int getStarveLevel(int) const;
     int getPotionDuration(int, int) const;
     bool HasFeatureArrowCanKnockback() const;
+    bool ArePowerupsActive() const;
+    EMiniGameId GetId() const;
+    size_t GetLayerCount() const;  // why 64-bit??? where ususally they used unsigned int
+    void SetLootSet(int lootSetId) const;
+    bool AllowPvp() const;
+    XmlInt getDifficulty() const;
 };

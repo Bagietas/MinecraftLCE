@@ -4,9 +4,9 @@
 #include "net/minecraft/client/color/ColourTable.h"
 
 #include "NX/Render/C4JRender.h"
-#include "com/mojang/blaze3d/platform/GlStateManager.h"
-#include "com/mojang/blaze3d/vertex/BufferBuilder.h"
-#include "com/mojang/blaze3d/vertex/Tesselator.h"
+#include "net/minecraft/client/renderer/platform/GlStateManager.h"
+#include "net/minecraft/client/renderer/vertex/BufferBuilder.h"
+#include "net/minecraft/client/renderer/vertex/Tesselator.h"
 
 #include "net/minecraft/client/gui/Font.h"
 #include "net/minecraft/client/renderer/texture/BufferedImage.h"
@@ -76,11 +76,11 @@ void MapRenderer::MapInstance::draw(const std::shared_ptr<Player>& _player) {
         int lastDecorTexId = -1;  // do this as decor imgs are split to two
         float b = -0.04f;
 
-        for (auto decor = decorations.begin(); decor != decorations.end(); ++decor) {
-            if ((player || decor->renderOnFrame()) && decor->isIdk()
-                && (!player || decor->getType() != &MapDecoration::Type::MANSION)) {
-                byte img = decor->getImg();
-                int hashCode = decor->hashCode();
+        for (const auto& decor : decorations) {
+            if ((player || decor.renderOnFrame()) && decor.isIdk()
+                && (!player || decor.getType() != &MapDecoration::Type::MANSION)) {
+                byte img = decor.getImg();
+                int hashCode = decor.hashCode();
                 if (map.find(hashCode) == map.end() || map.at(hashCode) <= 2) {
                     int tempTexId = img > 15 ? 120 : 14;
                     if (lastDecorTexId != tempTexId) {
@@ -91,9 +91,9 @@ void MapRenderer::MapInstance::draw(const std::shared_ptr<Player>& _player) {
                     }
 
                     GlStateManager::pushMatrix();
-                    GlStateManager::translatef(0.0f + decor->getX() / 2.0f + 64.0f,
-                                               0.0f + decor->getY() / 2.0f + 64.0f, b);
-                    GlStateManager::rotatef((decor->getRot() * 360) / 16.0f, 0.0f, 0.0f, 1.0f);
+                    GlStateManager::translatef(0.0f + decor.getX() / 2.0f + 64.0f,
+                                               0.0f + decor.getY() / 2.0f + 64.0f, b);
+                    GlStateManager::rotatef((decor.getRot() * 360) / 16.0f, 0.0f, 0.0f, 1.0f);
                     GlStateManager::scalef(4.0f, 4.0f, 3.0f);
                     GlStateManager::translatef(-0.125F, 0.125F, 0.0f);
                     float u = (float)(img % 4 + 0) / 4.0f;
