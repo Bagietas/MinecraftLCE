@@ -37,7 +37,7 @@ public:
 
     enum EntityCreationType {};
 
-    void staticCtor();
+    static void staticCtor();
 
     static nn::os::MutexType mMutex_710178c150;
     static nn::os::MutexType mMutex_710178c170;
@@ -115,6 +115,7 @@ public:
     void writeCompressedBlockLightData(DataOutputStream* out);
     ChunkPos getPos();
     bool isTerrainPopulated();
+    Block* GetBlock(CompressedBlockStorage* storage, int x, int y, int z);
     bool IsInvalid();
     void flagPostProcessComplete(short);
     void checkPostProcess(ChunkSource*, ChunkGenerator*);

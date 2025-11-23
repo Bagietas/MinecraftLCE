@@ -3,7 +3,7 @@
 #include <string>
 
 class UIScene;
-struct fuiRenderNode;
+class fuiRenderNode;
 
 class UIControl {
 public:
@@ -24,8 +24,13 @@ public:
     }  // not sure if it should be here or _Base as UIScene::hasControlFocus passes _Base for whatever
        // reason...
 
+    fuiRenderNode* getFuiRenderNode();
     void setSettedUp(int val) { this->mSettedUp = val; }
     void setVisible(bool);
+    float getWidth();
+    float getHeight();
+    float getXPos();
+    float getYPos();
 
     int mSettedUp;  // not sure
     int mControlID;

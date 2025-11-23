@@ -1,5 +1,8 @@
 #include "NX/Platform.h"
 
+#include "nn/fs/fs_bcat.h"
+#include "nn/fs/fs_directories.h"
+
 #include <cstdlib>
 #include <cstring>
 
@@ -7,13 +10,15 @@ void* XPhysicalAlloc(unsigned long a1, unsigned long a2, unsigned long a3, unsig
     return malloc(a1);
 }
 
-void XMemSet128(void* ptr, int a2, unsigned int a3) {
+void XMemSet128(void* ptr, int a2, size_t a3) {
     memset(ptr, a2, a3);
 }
 
 void XPhysicalFree(void* ptr) {
     free(ptr);
 }
+
+void __debugbreak() {}  // I assume this just calls compiler intrinsic on x86
 
 void MemSect(int) {}
 

@@ -5,27 +5,7 @@ import ida_kernwin
 # TODO: This stupid script is very hardcoded
 
 rename_these = [
-    "IslandLayer",
-    "FuzzyZoomLayer",
-    "AddIslandLayer",
-    "ZoomLayer",
-    "RemoveTooMuchOceanLayer",
-    "AddSnowLayer",
-    "AddEdgeLayer",
-    "AddMushroomIslandLayer",
-    "AddDeepOceanLayer",
-    "RiverInitLayer",
-    "BiomeInitLayer",
-    "BiomeEdgeLayer",
-    "RegionHillsLayer",
-    "RiverLayer",
-    "SmoothLayer",
-    "RareBiomeSpotLayer",
-    "GrowMushroomIslandLayer",
-    "ShoreLayer",
-    "RiverMixerLayer",
-    "BiomeCacheLayer",
-    "VoronoiZoom"
+    "LightningBolt",
 ]
 
 def find_vtable(symbol):
@@ -106,7 +86,7 @@ def main():
     #base_symbol = ida_kernwin.ask_str("Block", 0, "Enter the base symbol:")
     #derived_symbol = ida_kernwin.ask_str("AnvilBlock", 0, "Enter the derived symbol:")
 
-    base_symbol = "Layer"
+    base_symbol = "Entity"
 
     for derived_symbol in rename_these:
         # Find vtables for both symbols

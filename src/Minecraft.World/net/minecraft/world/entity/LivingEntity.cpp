@@ -35,12 +35,12 @@ eINSTANCEOF LivingEntity::GetType() {
     return eLivingEntity;
 }
 void LivingEntity::setBoundingBox(AABB* box) {
-    const int newMinX = Mth::floor(box->min.x);
-    const int newMaxX = Mth::floor(box->max.x);
-    const int newMinY = Mth::floor(box->min.y);
-    const int newMaxY = Mth::floor(box->max.y);
-    const int newMinZ = Mth::floor(box->min.z);
-    const int newMaxZ = Mth::floor(box->max.z);
+    const int newMinX = Mth::floor(box->minX);
+    const int newMaxX = Mth::floor(box->maxX);
+    const int newMinY = Mth::floor(box->minY);
+    const int newMaxY = Mth::floor(box->maxY);
+    const int newMinZ = Mth::floor(box->minZ);
+    const int newMaxZ = Mth::floor(box->maxZ);
 
     const int oldMinX = this->mMinX;
     const int oldMaxX = this->mMaxX;
@@ -106,9 +106,9 @@ void LivingEntity::travel(float x, float y, float z) {
                             this->mDeltaMovementY = 0.0f;
                     }
                 } else {
-                    MutableBlockPos blockPos = MutableBlockPos(
-                        Mth::floor(this->mX), Mth::floor(this->getBoundingBox()->min.y - 1.0),
-                        Mth::floor(this->mZ));
+                    MutableBlockPos blockPos = MutableBlockPos(Mth::floor(this->mX),
+                                                               Mth::floor(this->getBoundingBox()->minY - 1.0),
+                                                               Mth::floor(this->mZ));
                     float finalFriction = 0.91f;
                     if (this->mOnGround) {
                         PIXBeginNamedEvent(0.0, "Get friction 1");
@@ -141,7 +141,7 @@ void LivingEntity::travel(float x, float y, float z) {
                     finalFriction = 0.91f;
                     if (this->mOnGround) {
                         PIXBeginNamedEvent(0.0, "Get friction 2");
-                        blockPos.set(Mth::floor(this->mX), Mth::floor(this->getBoundingBox()->min.y - 1.0),
+                        blockPos.set(Mth::floor(this->mX), Mth::floor(this->getBoundingBox()->minY - 1.0),
                                      Mth::floor(this->mZ));
                         Block* block = this->mLevel->getBlockState(blockPos)->getBlock();
                         block = this->IsCreativeFlying()
@@ -467,4 +467,47 @@ void LivingEntity::CheckThermalAreas() {
             mIsSpeedBoosting = false;
         }
     }
+}
+
+void LivingEntity::fallFlyingTravel(double& motionX, double& motionY, double& motionZ, Vec3* viewAngle,
+                                    float& xRot, float& fallDistance, double& speed, double liftForce) {
+    if (-0.5 < motionY) {
+        fallDistance = 1.0;
+    }
+    float pitchRad = xRot * 0.017453292f;
+    double horizontalViewLength = std::sqrt(viewAngle->x * viewAngle->x + viewAngle->z * viewAngle->z);
+
+    speed = std::sqrt((motionX * motionX) + (motionZ * motionZ));
+    double lenView = viewAngle->length();
+
+    float verticalBoost = std::cos(pitchRad);
+    float scale = (lenView / 0.4f < 1.0f) ? (lenView / 0.4f) : 1.0f;
+    verticalBoost *= verticalBoost * scale;
+
+    verticalBoost *= (float)liftForce;
+
+    motionY += verticalBoost * 0.06 - 0.08;
+
+    if (horizontalViewLength > 0.0 && motionY < 0.0) {
+        double d = -0.1 * motionY * verticalBoost;
+        motionY += d;
+        motionX += (d * viewAngle->x) / horizontalViewLength;
+        motionZ += (d * viewAngle->z) / horizontalViewLength;
+    }
+
+    if (pitchRad < 0.0 && horizontalViewLength > 0.0) {
+        double d = speed * -std::sin(pitchRad) * 0.04;
+        motionY += d * 3.2;
+        motionX -= (viewAngle->x * d) / horizontalViewLength;
+        motionZ -= (viewAngle->z * d) / horizontalViewLength;
+    }
+
+    if (horizontalViewLength > 0.0) {
+        motionX += ((viewAngle->x / horizontalViewLength) * speed - motionX) * 0.1;
+        motionZ += ((viewAngle->z / horizontalViewLength) * speed - motionZ) * 0.1;
+    }
+
+    motionX *= 0.99;
+    motionY *= 0.98;
+    motionZ *= 0.99;
 }
