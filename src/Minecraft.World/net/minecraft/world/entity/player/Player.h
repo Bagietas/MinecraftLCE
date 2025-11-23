@@ -56,9 +56,9 @@ public:
     void causeFallDamage(float, float) override;
     void doWaterSplashEffect() override;
     void push(std::shared_ptr<Entity>) override;
-    void hurt(DamageSource*, float) override;
+    bool hurt(DamageSource*, float) override;
     bool isPickable() override;
-    void shouldRenderAtSqrDistance(double) override;
+    bool shouldRenderAtSqrDistance(double) override;
     void readAdditionalSaveData(CompoundTag*) override;
     void addAdditonalSaveData(CompoundTag*) override;
     bool isInWall() override;

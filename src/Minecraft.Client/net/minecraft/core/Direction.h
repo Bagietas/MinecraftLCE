@@ -1,7 +1,7 @@
 #pragma once
 
 #include "net/minecraft/core/StringRepresentable.h"
-#include "net/minecraft/world/level/block/state/properties/AbstractProperty.h"
+#include "net/minecraft/util/Predicate.h"
 #include <string>
 #include <unordered_map>
 #include <vector>

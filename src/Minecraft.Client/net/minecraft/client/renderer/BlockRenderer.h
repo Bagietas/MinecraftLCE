@@ -7,6 +7,16 @@ class AABB;
 
 class BlockRenderer {
 public:
+    struct BoxDesc {
+        uint8_t faceFlags;
+        float x1;
+        float y1;
+        float z1;
+        float x2;
+        float y2;
+        float z2;
+    };
+    struct BoxUV;
     BlockRenderer(LevelSource*, int, int, int, unsigned char*);
     ~BlockRenderer();
 

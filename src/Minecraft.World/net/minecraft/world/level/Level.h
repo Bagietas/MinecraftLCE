@@ -6,9 +6,11 @@
 #include "types.h"
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "net/minecraft/sounds/SoundSource.h"
+#include "net/minecraft/util/Predicate.h"
 #include "net/minecraft/world/ArrayWithLength.h"
 #include "net/minecraft/world/CustomSet.h"
 #include "net/minecraft/world/IntKey.h"
@@ -201,9 +203,14 @@ public:
     std::shared_ptr<SavedData> getSavedData(const std::type_info&, const std::wstring&);
     void setSavedData(const std::wstring&, std::shared_ptr<SavedData>);
     std::vector<std::shared_ptr<Entity>>* getEntitiesOfClass(const std::type_info&, AABB const*);
+    std::vector<std::shared_ptr<Entity>>* getEntities(std::shared_ptr<Entity>, AABB const*,
+                                                      const Predicate<std::shared_ptr<Entity>>*,
+                                                      std::vector<std::shared_ptr<Entity>>*);
+    HitResult* clip(Vec3*, Vec3*, bool, bool, bool, bool, std::unordered_set<Block*>*, bool);
     bool shouldFreezeIgnoreNeighbors(const BlockPos&);
     bool shouldSnow(const BlockPos&, bool);
     bool isFindingSpawn();
+    bool isThundering();
 
     int mSeaLevel = 63;
     nn::os::MutexType mEntityMutex;

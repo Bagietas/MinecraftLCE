@@ -57,7 +57,7 @@ public:
         void cycle(const Property*) const override;
         void getValues() const override;
         Block* getBlock() const override;
-        void toString() const override;
+        std::wstring toString() const override;
         void equals(const BlockState*) override;
         void hashCode() const override;
         void triggerEvent(Level*, const BlockPos&, int, int) const override;

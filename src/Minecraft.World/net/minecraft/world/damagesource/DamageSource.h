@@ -3,7 +3,10 @@
 #include "net/minecraft/world/entity/Entity.h"
 #include <memory>
 
+class ThrownTrident;
+
 class EntityDamageSource;
+
 class DamageSource {
 public:
     static DamageSource* BYPASS_ARMOUR;  // this name is wrong
@@ -11,6 +14,9 @@ public:
     static DamageSource* WITHER;
 
     static DamageSource* CreateThorns(std::shared_ptr<Entity> entity);
+#ifndef BASALT_MOD
+    static DamageSource* CreateTrident(std::shared_ptr<ThrownTrident>, std::shared_ptr<Entity>) {}
+#endif
 
     DamageSource(ClientboundChatPacket::EChatPacketMessage, ClientboundChatPacket::EChatPacketMessage);
     virtual ~DamageSource() = default;

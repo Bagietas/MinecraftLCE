@@ -8,6 +8,7 @@
 class BufferedImage;
 class TexturePackRepository;
 class Options;
+class ResourceLocation;
 
 enum _TEXTURE_NAME : unsigned int { GRASS_COLOR, FOLIAGE_COLOR };
 
@@ -20,10 +21,13 @@ public:
     arrayWithLength<int> loadTexturePixels(BufferedImage* image);
     int loadTexture(int);
     void readImage(_TEXTURE_NAME name, const std::wstring&);
-    bool IsTUImage(_TEXTURE_NAME name, const std::wstring&);
     int getTexture(BufferedImage* image, C4JRender::eTextureFormat format, bool);
     void replaceTextureDirect(arrayWithLength<int> pixels, int width, int height, int textureId);
     void bind(int textureId);
+    void bindTexture(const ResourceLocation*);
+
+    static bool IsTUImage(_TEXTURE_NAME name, const std::wstring&);
+    static bool IsOriginalImage(_TEXTURE_NAME name, const std::wstring&);
 
     unsigned char padding[256];
     TextureAtlas* atlas;

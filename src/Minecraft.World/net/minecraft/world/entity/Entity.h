@@ -128,14 +128,14 @@ public:
     virtual void push(std::shared_ptr<Entity>);
     virtual void push(double, double, double);
     virtual void markHurt();
-    virtual void hurt(DamageSource*, float);
+    virtual bool hurt(DamageSource*, float);
     virtual Vec3* getViewVector(float);
     virtual bool isPickable();
     virtual bool isPushable();
     virtual void awardKillScore(std::shared_ptr<Entity>, int, DamageSource*);
-    virtual void shouldRender(double, double, double);
-    virtual void shouldRender(double);
-    virtual void shouldRenderAtSqrDistance(double);
+    virtual bool shouldRender(double, double, double);
+    virtual bool shouldRender(double);
+    virtual bool shouldRenderAtSqrDistance(double);
     virtual void save(CompoundTag*);
     virtual void load(CompoundTag*);
     virtual void repositionEntityAfterLoad();
@@ -218,7 +218,7 @@ public:
     virtual void skipAttackInteraction(std::shared_ptr<Entity>);
     virtual void copyPosition(std::shared_ptr<Entity>);
     virtual void changeDimension(int);
-    virtual void canChangeDimensions();
+    virtual bool canChangeDimensions();
     virtual void getBlockExplosionResistance(Explosion*, Level*, const BlockPos&);
     virtual void shouldBlockExplode(Explosion*, Level*, const BlockPos&, float);
     virtual void getMaxFallDistance();
@@ -228,10 +228,10 @@ public:
     virtual bool isIgnoringBlockTriggers();
     virtual void displayFireAnimation();
     virtual void setUUID(const std::wstring&);
-    virtual void getUUID();
+    virtual PlayerUID getUUID();
     virtual void getStringUUID();
     virtual bool isPushedByWater();
-    virtual void getViewScale();
+    virtual double getViewScale();
     virtual void setViewScale(double);
     virtual std::wstring getDisplayName();
     virtual void setCustomName(const std::wstring&, const std::wstring&, bool);
@@ -302,6 +302,7 @@ public:
     void moveRelative(float, float, float, float);
     bool isFree(double, double, double);
     void fjCheckDerivedConstruction();
+    void setRot(float, float);
 
     int mId;
     bool mBlocksBuilding;

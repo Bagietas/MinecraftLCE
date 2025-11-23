@@ -5,5 +5,7 @@
 
 class Arrow : public Entity, public Projectile {
 public:
+    static Predicate<std::shared_ptr<Entity>>* ARROW_TARGETS;
+
     void setCritArrow(bool);
 };

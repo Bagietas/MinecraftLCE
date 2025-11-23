@@ -42,6 +42,7 @@ public:
     AABB* move(const BlockPos&) const;
     HitResult* clip(Vec3*, Vec3*) const;
     void correctMinMax();
+    AABB* expand(double, double, double) const;
 
     static AABB* sCrossShape;  // .got:000000710176F5E0
 };

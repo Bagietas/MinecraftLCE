@@ -1,5 +1,6 @@
 #pragma once
 
+#include "net/minecraft/util/Predicate.h"
 #include "net/minecraft/world/level/block/state/properties/AbstractProperty.h"
 #include <string>
 #include <typeinfo>

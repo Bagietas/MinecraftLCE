@@ -1,6 +1,7 @@
 #pragma once
 
 #include "net/minecraft/core/System.h"
+#include "net/minecraft/util/Predicate.h"
 #include "net/minecraft/world/ArrayWithLength.h"
 #include "net/minecraft/world/level/LightLayer.h"
 #include "net/minecraft/world/level/chunk/ChunkPos.h"

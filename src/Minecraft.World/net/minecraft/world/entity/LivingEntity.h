@@ -35,7 +35,7 @@ public:
     void causeFallDamage(float, float) override;
     void getLightColor() override;
     void markHurt() override;
-    void hurt(DamageSource*, float) override;
+    bool hurt(DamageSource*, float) override;
     Vec3* getViewVector(float) override;
     bool isPickable() override;
     bool isPushable() override;

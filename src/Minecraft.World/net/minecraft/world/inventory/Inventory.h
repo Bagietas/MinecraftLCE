@@ -9,6 +9,8 @@ public:
     bool add(not_null_ptr<ItemInstance>);
     bool hasResource(Item*);
 
+    void removeItem(not_null_ptr<ItemInstance>);
+
     void getName() override;
     void getCustomName() override;
     void hasCustomName() override;

@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 class Block;
 class BlockState;
@@ -107,7 +108,7 @@ public:
     void getAttributeModifiers(const EquipmentSlot*);
     void getTooltipLines(std::shared_ptr<Player>, bool);
     void getHoverTextOnly(std::shared_ptr<Player>, bool);
-    void hasFoil();
+    bool hasFoil();
     void getRarity();
     bool isEnchanted();
     bool isEnchantable();
