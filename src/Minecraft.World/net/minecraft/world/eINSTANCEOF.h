@@ -203,10 +203,5 @@ enum eINSTANCEOF {
     eDragonFireball = 0x8A400001,
     eWitherSkull = 0x8A400002,
     eLargeFireball = 0x8A400003,
-    eSmallFireball = 0x8A400004,
-
-    // NOT DECOMP SHIT, IT"S MY MOD
-
-    eAbstractRotatedItemProjectile = 0x8A200000,
-    eThrownTrident = 0x8A200006,
+    eSmallFireball = 0x8A400004
 };
