@@ -7,6 +7,7 @@
 #include <vector>
 
 class Vec3i;
+class Random;
 
 class Direction : public StringRepresentable {
 public:
@@ -16,6 +17,8 @@ public:
         static Plane* VERTICAL;
 
         Plane();
+
+        const Direction* getRandomDirection(Random&);
     };
     class AxisDirection {
     public:

@@ -7,11 +7,8 @@
 #include "net/minecraft/world/InteractionHand.h"
 #include "net/minecraft/world/eINSTANCEOF.h"
 #include "net/minecraft/world/entity/CommandSender.h"
-#include <cstdint>
-#include <map>
 #include <memory>
 #include <set>
-#include <unordered_map>
 
 #include "net/minecraft/world/entity/SkinAdjustments.h"
 #include "types.h"
@@ -62,6 +59,7 @@ public:
 
     static void staticCtor();
     static int getSmallId();
+    static bool instanceof(const std::shared_ptr<Entity>&, eINSTANCEOF);
 
     Entity(Level*, bool);
     void _init(bool, Level*);

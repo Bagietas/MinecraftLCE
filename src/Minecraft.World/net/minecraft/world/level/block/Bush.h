@@ -10,7 +10,8 @@ public:
 
     bool isCubeShaped(const BlockState* blockState) override;
     RenderShape getRenderShape(const BlockState* blockState) override;
-    AABB* getShape(const BlockState* blockState, LevelSource* levelSource, const BlockPos& pos) override;
+    const AABB* getShape(const BlockState* blockState, LevelSource* levelSource,
+                         const BlockPos& pos) override;
     int getBlockFaceShape(LevelSource* levelSource, const BlockState* blockState, const BlockPos& pos,
                           const Direction* direction) override;
     AABB* getClipAABB(const BlockState* blockState, LevelSource* levelSource, const BlockPos& pos) override;

@@ -21,6 +21,7 @@ class Slot;
 class AbstractContainerMenu {
 public:
     not_null_ptr<ItemInstance> GetQuickCraftItem(int, int);
+    void addSlot(Slot*);
 
     virtual ~AbstractContainerMenu();
     virtual void addSlotListener(net_minecraft_world_inventory::ContainerListener*);

@@ -11,8 +11,6 @@ class TexturePackRepository;
 class Options;
 class ResourceLocation;
 
-enum _TEXTURE_NAME : unsigned int { GRASS_COLOR, FOLIAGE_COLOR };
-
 class Textures {
 public:
     Textures(TexturePackRepository*, Options*);

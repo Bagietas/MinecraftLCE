@@ -211,6 +211,7 @@ public:
     bool shouldSnow(const BlockPos&, bool);
     bool isFindingSpawn();
     bool isThundering();
+    int getDaytimeRawBrightness(const BlockPos& pos);
 
     int mSeaLevel = 63;
     nn::os::MutexType mEntityMutex;

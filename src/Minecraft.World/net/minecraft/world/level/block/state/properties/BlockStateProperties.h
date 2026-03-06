@@ -6,4 +6,5 @@ class BlockStateProperties {
 public:
     static IntegerProperty* WATER_LEVEL;
     static IntegerProperty* AGE_15;
+    static IntegerProperty* AGE_3;
 };

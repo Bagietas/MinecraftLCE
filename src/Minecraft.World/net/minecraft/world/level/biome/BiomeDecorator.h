@@ -15,10 +15,9 @@ public:
     virtual void decorate(Biome*, Level*, Random&);
     virtual void decorateOres(Level*, Random&);
 
-private:
+public:
     char byte_8;
-    void* qword_c;
-    void* qword_18;
+    BlockPos mPos;
     ClayFeature* field_20;
     void* qword_28;
     void* qword_30;

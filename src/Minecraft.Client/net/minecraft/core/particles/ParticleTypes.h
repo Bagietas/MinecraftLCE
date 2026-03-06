@@ -9,4 +9,5 @@ public:
     static ParticleType* FALLING_DUST;
     static ParticleType* CRIT;
     static ParticleType* BUBBLE;
+    static ParticleType* RED_DUST;
 };

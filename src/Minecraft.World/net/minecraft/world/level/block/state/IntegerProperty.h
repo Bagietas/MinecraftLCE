@@ -4,7 +4,7 @@
 
 class IntegerProperty : public AbstractProperty<int> {
 public:
-    static IntegerProperty* create(const std::wstring&, int, int);
+    static IntegerProperty* create(const std::wstring& id, int min, int max);
 
     const std::vector<Boxed*>& getPossibleValues() const override;
     bool equals(const Property*) const override;
